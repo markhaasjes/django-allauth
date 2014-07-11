@@ -35,11 +35,11 @@ def provider_login_url(parser, token):
     provider_id = bits[1]
     params = token_kwargs(bits[2:], parser, support_legacy=False)
     return ProviderLoginURLNode(provider_id, params)
-    
+
 class ProvidersMediaJSNode(template.Node):
     def render(self, context):
         request = context['request']
-        ret = '\n'.join([p.media_js(request) 
+        ret = '\n'.join([p.media_js(request)
                          for p in providers.registry.get_list()])
         return ret
 
@@ -60,7 +60,9 @@ def get_social_accounts(user):
         {% if accounts %} -- if there is at least one social account
     """
     accounts = {}
-    for account in user.socialaccount_set.all().iterator():
-        providers = accounts.setdefault(account.provider, [])
-        providers.append(account)
+
+    if not user.is_anonymous():
+        for account in user.socialaccount_set.all().iterator():
+            providers = accounts.setdefault(account.provider, [])
+            providers.append(account)
     return accounts
